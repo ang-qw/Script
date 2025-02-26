@@ -99,6 +99,16 @@ if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este jueg
             end)
         end
 
+        -- Si estamos en PC, el jugador debe presionar la tecla "P"
+        local UserInputService = game:GetService("UserInputService")
+        UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.P then
+                startBounce() -- Activar el rebote con la tecla "P"
+            end
+        end)
+
+        -- En dispositivos móviles, se sigue utilizando el botón
         bounceButton.MouseButton1Click:Connect(startBounce)
     end
 end
