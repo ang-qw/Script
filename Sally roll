@@ -1,6 +1,19 @@
 local player = game.Players.LocalPlayer
 
 if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local allowedCharacters = {
+        ["shadow"] = true,
+        ["sally"] = true
+    }
+
+    local function canUseRoll()
+        return allowedCharacters[characterValue.Value:lower()] or false
+    end
+
     local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
     gui.Name = "RollGUI"
 
@@ -12,6 +25,7 @@ if game.PlaceId == 14722542056 then
     rollButton.Parent = gui
     rollButton.Active = true
     rollButton.Draggable = true
+    rollButton.Visible = canUseRoll()
 
     local uicorner = Instance.new("UICorner", rollButton)
     uicorner.CornerRadius = UDim.new(1, 0)
@@ -28,7 +42,7 @@ if game.PlaceId == 14722542056 then
     end
 
     local function activateRoll()
-        if cooldown or not isOnGround() then return end
+        if cooldown or not isOnGround() or not canUseRoll() then return end
 
         cooldown = true
         rollButton.BackgroundTransparency = 0.7
@@ -65,4 +79,8 @@ if game.PlaceId == 14722542056 then
     end
 
     rollButton.MouseButton1Click:Connect(activateRoll)
+
+    characterValue.Changed:Connect(function()
+        rollButton.Visible = canUseRoll()
+    end)
 end
