@@ -30,7 +30,8 @@ if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este jueg
 
         local function playBounceSound()
             local sound = Instance.new("Sound", player.Character)
-            sound.SoundId = "rbxassetid://14693821579" -- Reemplaza con el sonido de rebote
+            sound.SoundId = "rbxassetid://1885641628" -- Nuevo sonido de rebote
+            sound.Volume = 1
             sound:Play()
         end
 
@@ -67,17 +68,16 @@ if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este jueg
                     -- Calcular el tiempo de caída
                     local fallTime = tick() - startFallTime
                     -- Ajustar la altura del rebote dependiendo del tiempo de caída
-                    -- A mayor tiempo de caída, mayor será la altura del salto, pero un poco nerfeado en el segundo rebote
-                    local bounceHeight = math.min(fallTime * 120, 300) -- Nerfeo: ahora la altura es menor
+                    local bounceHeight = math.min(fallTime * 120, 300) -- Altura ajustada
                     maxBounceHeight = bounceHeight -- Guardar el rebote máximo alcanzado
 
                     -- Aplicar impulso con BodyVelocity
                     local bodyVelocity = Instance.new("BodyVelocity")
-                    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000) -- Fuerza máxima en los 3 ejes
-                    bodyVelocity.Velocity = Vector3.new(0, bounceHeight, 0) -- Impulso hacia arriba
+                    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+                    bodyVelocity.Velocity = Vector3.new(0, bounceHeight, 0)
                     bodyVelocity.Parent = humanoidRootPart
 
-                    -- Rebotar con el BodyVelocity
+                    -- Reproducir sonido de rebote
                     playBounceSound()
 
                     -- Animación del impacto
@@ -85,12 +85,12 @@ if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este jueg
                     animTrack2:Play()
 
                     -- Detener el rebote y cooldown
-                    task.delay(0.5, function()  -- Espera un poco antes de detener el cooldown
+                    task.delay(0.5, function()
                         bodyVelocity:Destroy()
-                        isBouncing = false -- Asegurarse de que no haya más rebotes
+                        isBouncing = false
                     end)
 
-                    -- Cooldown de 30 segundos para el siguiente rebote
+                    -- Cooldown de 30 segundos
                     task.delay(30, function()
                         cooldown = false
                         bounceButton.BackgroundTransparency = 1
