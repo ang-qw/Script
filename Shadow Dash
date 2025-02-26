@@ -15,7 +15,7 @@ if game.PlaceId == 14722542056 then
     local dashButton = Instance.new("ImageButton")
     dashButton.Size = UDim2.new(0, 60, 0, 60)
     dashButton.Position = UDim2.new(1, -80, 0.6, -30)
-    dashButton.Image = "rbxassetid://83702098460858"
+    dashButton.Image = "rbxassetid://138028806969115"
     dashButton.BackgroundTransparency = 1
     dashButton.Parent = gui
     dashButton.Active = true
