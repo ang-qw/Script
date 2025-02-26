@@ -1,0 +1,105 @@
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.Name = "SpeedControlGUI"
+
+-- Marco principal (Movible)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0.5, -100, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(255, 192, 203)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 25)
+title.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+title.Text = "Speed Control"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Parent = frame
+
+-- Slider de velocidad
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(1, -20, 0, 30)
+speedBox.Position = UDim2.new(0, 10, 0, 30)
+speedBox.Text = "16"  -- Velocidad normal
+speedBox.ClearTextOnFocus = false
+speedBox.Parent = frame
+
+-- Botón de activación
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(1, -20, 0, 30)
+toggleButton.Position = UDim2.new(0, 10, 0, 65)
+toggleButton.Text = "Activate Speed"
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+toggleButton.Parent = frame
+
+-- Botón para ocultar la GUI
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(0, 40, 0, 30)
+hideButton.Position = UDim2.new(1, -45, 0, -35)
+hideButton.Text = "-"
+hideButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+hideButton.Parent = frame
+
+-- Botón oculto para reabrir la GUI
+local showButton = Instance.new("TextButton")
+showButton.Size = UDim2.new(0, 50, 0, 30)
+showButton.Position = UDim2.new(0.5, -25, 0.3, 0)
+showButton.Text = "+"
+showButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+showButton.Visible = false
+showButton.Parent = gui
+
+-- Variable de estado
+local isActive = false
+local loop
+
+-- Función para actualizar la velocidad
+local function updateSpeed()
+    while isActive do
+        local speedValue = tonumber(speedBox.Text) or 16
+        humanoid.WalkSpeed = speedValue
+        task.wait(0.1)
+    end
+end
+
+-- Evento del botón de activación
+toggleButton.MouseButton1Click:Connect(function()
+    isActive = not isActive
+    if isActive then
+        toggleButton.Text = "Deactivate Speed"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        loop = task.spawn(updateSpeed)
+    else
+        toggleButton.Text = "Activate Speed"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        humanoid.WalkSpeed = 16
+        task.cancel(loop)
+    end
+end)
+
+-- Evento para ocultar la GUI
+hideButton.MouseButton1Click:Connect(function()
+    frame.Visible = false
+    showButton.Visible = true
+end)
+
+-- Evento para mostrar la GUI
+showButton.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    showButton.Visible = false
+end)
+
+-- Evento para eliminar la GUI y desactivar el script
+gui.AncestryChanged:Connect(function()
+    if gui.Parent == nil then
+        isActive = false
+        humanoid.WalkSpeed = 16
+    end
+end)
