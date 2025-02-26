@@ -1,0 +1,104 @@
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este juego
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    -- Solo activar la habilidad si el personaje es "amy"
+    if characterValue.Value:lower() == "amy" then
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "AmyHammerBounceGUI"
+
+        local bounceButton = Instance.new("ImageButton")
+        bounceButton.Size = UDim2.new(0, 60, 0, 60)
+        bounceButton.Position = UDim2.new(1, -80, 0.4, -30)
+        bounceButton.Image = "rbxassetid://95495043584579" -- Nuevo icono
+        bounceButton.BackgroundTransparency = 1
+        bounceButton.Parent = gui
+        bounceButton.Active = true
+        bounceButton.Draggable = true
+        bounceButton.Visible = true
+
+        local uicorner = Instance.new("UICorner", bounceButton)
+        uicorner.CornerRadius = UDim.new(1, 0)
+
+        local cooldown = false
+        local isBouncing = false
+        local startFallTime = 0
+        local maxBounceHeight = 0 -- Guardar la altura máxima de rebote alcanzada
+
+        local function playBounceSound()
+            local sound = Instance.new("Sound", player.Character)
+            sound.SoundId = "rbxassetid://14693821579" -- Reemplaza con el sonido de rebote
+            sound:Play()
+        end
+
+        local function startBounce()
+            if cooldown then return end
+
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+            if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then return end
+
+            cooldown = true
+            isBouncing = true
+            bounceButton.BackgroundTransparency = 0.5
+
+            -- Animación antes del impacto
+            local bounceAnim1 = Instance.new("Animation")
+            bounceAnim1.AnimationId = "rbxassetid://14693821579"
+            local bounceAnim2 = Instance.new("Animation")
+            bounceAnim2.AnimationId = "rbxassetid://14694012690"
+
+            local animTrack1 = humanoid:LoadAnimation(bounceAnim1)
+            local animTrack2 = humanoid:LoadAnimation(bounceAnim2)
+
+            animTrack1:Play()
+
+            -- Tiempo de caída
+            startFallTime = tick()
+
+            -- Esperar hasta que toque el suelo
+            humanoid.StateChanged:Connect(function(_, newState)
+                if newState == Enum.HumanoidStateType.Landed and isBouncing then
+                    -- Calcular el tiempo de caída
+                    local fallTime = tick() - startFallTime
+                    -- Ajustar la altura del rebote dependiendo del tiempo de caída
+                    -- A mayor tiempo de caída, mayor será la altura del salto, pero un poco nerfeado en el segundo rebote
+                    local bounceHeight = math.min(fallTime * 120, 300) -- Nerfeo: ahora la altura es menor
+                    maxBounceHeight = bounceHeight -- Guardar el rebote máximo alcanzado
+
+                    -- Aplicar impulso con BodyVelocity
+                    local bodyVelocity = Instance.new("BodyVelocity")
+                    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000) -- Fuerza máxima en los 3 ejes
+                    bodyVelocity.Velocity = Vector3.new(0, bounceHeight, 0) -- Impulso hacia arriba
+                    bodyVelocity.Parent = humanoidRootPart
+
+                    -- Rebotar con el BodyVelocity
+                    playBounceSound()
+
+                    -- Animación del impacto
+                    animTrack1:Stop()
+                    animTrack2:Play()
+
+                    -- Detener el rebote y cooldown
+                    task.delay(0.5, function()  -- Espera un poco antes de detener el cooldown
+                        bodyVelocity:Destroy()
+                        isBouncing = false -- Asegurarse de que no haya más rebotes
+                    end)
+
+                    -- Cooldown de 30 segundos para el siguiente rebote
+                    task.delay(30, function()
+                        cooldown = false
+                        bounceButton.BackgroundTransparency = 1
+                    end)
+                end
+            end)
+        end
+
+        bounceButton.MouseButton1Click:Connect(startBounce)
+    end
+end
