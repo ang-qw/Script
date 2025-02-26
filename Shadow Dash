@@ -1,0 +1,76 @@
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local function canUseDash()
+        return characterValue.Value:lower() == "shadow"
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "DashGUI"
+
+    local dashButton = Instance.new("ImageButton")
+    dashButton.Size = UDim2.new(0, 60, 0, 60)
+    dashButton.Position = UDim2.new(1, -80, 0.6, -30)
+    dashButton.Image = "rbxassetid://93891156254229"
+    dashButton.BackgroundTransparency = 1
+    dashButton.Parent = gui
+    dashButton.Active = true
+    dashButton.Draggable = true
+    dashButton.Visible = canUseDash()
+
+    local uicorner = Instance.new("UICorner", dashButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local cooldown = false
+
+    local function activateDash()
+        if cooldown or not canUseDash() then return end
+
+        cooldown = true
+        dashButton.BackgroundTransparency = 0.7
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        local dashAnim = Instance.new("Animation")
+        dashAnim.AnimationId = "rbxassetid://14465982605"
+        local animTrack = humanoid:LoadAnimation(dashAnim)
+        animTrack:Play()
+
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+        bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * (52 * 4.5) -- Nerfeado
+        bodyVelocity.Parent = humanoidRootPart
+
+        local isAirborne = humanoid:GetState() == Enum.HumanoidStateType.Freefall
+        if isAirborne then
+            local antiGravity = Instance.new("BodyForce")
+            antiGravity.Force = Vector3.new(0, workspace.Gravity * humanoidRootPart.AssemblyMass, 0)
+            antiGravity.Parent = humanoidRootPart
+            task.wait(0.4)
+            antiGravity:Destroy()
+        else
+            task.wait(0.4)
+        end
+
+        bodyVelocity:Destroy()
+        animTrack:Stop()
+        humanoid:Move(Vector3.new(0, 0, 0))
+
+        task.delay(30, function()
+            cooldown = false
+            dashButton.BackgroundTransparency = 1
+        end)
+    end
+
+    dashButton.MouseButton1Click:Connect(activateDash)
+
+    characterValue.Changed:Connect(function()
+        dashButton.Visible = canUseDash()
+    end)
+end
