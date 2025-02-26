@@ -1,0 +1,102 @@
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local function canUseGlide()
+        return characterValue.Value:lower() == "cream"
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "GlideGUI"
+
+    local glideButton = Instance.new("ImageButton")
+    glideButton.Size = UDim2.new(0, 60, 0, 60)
+    glideButton.Position = UDim2.new(1, -80, 0.4, -30)
+    glideButton.Image = "rbxassetid://11112592115"
+    glideButton.BackgroundTransparency = 1
+    glideButton.Parent = gui
+    glideButton.Active = true
+    glideButton.Draggable = true
+    glideButton.Visible = canUseGlide()
+
+    local uicorner = Instance.new("UICorner", glideButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local FLOAT_FORCE = 90000
+    local DESCEND_SPEED = -2
+    local cooldown = false
+    local gliding = false
+
+    local function activateGlide()
+        if cooldown or not canUseGlide() then return end
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then return end
+
+        cooldown = true
+        gliding = true
+        glideButton.BackgroundTransparency = 0.5
+
+        -- Animaciones
+        local glideAnim = Instance.new("Animation")
+        glideAnim.AnimationId = "rbxassetid://104077515216832"
+        local descendAnim = Instance.new("Animation")
+        descendAnim.AnimationId = "rbxassetid://136705072136812"
+
+        local animTrack = humanoid:LoadAnimation(glideAnim)
+        local descendTrack = humanoid:LoadAnimation(descendAnim)
+
+        animTrack:Play()
+
+        -- Aplicar fuerza para planear
+        local glideForce = Instance.new("BodyVelocity")
+        glideForce.MaxForce = Vector3.new(0, FLOAT_FORCE, 0)
+        glideForce.Velocity = Vector3.new(0, DESCEND_SPEED, 0)
+        glideForce.Parent = humanoidRootPart
+
+        local function stopGlide()
+            if not gliding then return end
+            gliding = false
+            glideButton.BackgroundTransparency = 1
+            animTrack:Stop()
+            descendTrack:Stop()
+            glideForce:Destroy()
+            task.delay(35, function()
+                cooldown = false
+            end)
+        end
+
+        -- Cancelar con el botón
+        glideButton.MouseButton1Click:Connect(function()
+            if gliding then
+                stopGlide()
+            end
+        end)
+
+        -- Detectar cuando toca el suelo
+        humanoid.StateChanged:Connect(function(_, newState)
+            if newState == Enum.HumanoidStateType.Landed then
+                stopGlide()
+            end
+        end)
+
+        -- Cambiar animación al descender
+        task.wait(3) -- Simula duración antes de descender más rápido
+        if gliding then
+            descendTrack:Play()
+            glideForce.Velocity = Vector3.new(0, DESCEND_SPEED * 2, 0)
+        end
+    end
+
+    glideButton.MouseButton1Click:Connect(activateGlide)
+
+    characterValue.Changed:Connect(function()
+        glideButton.Visible = canUseGlide()
+    end)
+end
