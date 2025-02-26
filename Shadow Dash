@@ -15,7 +15,7 @@ if game.PlaceId == 14722542056 then
     local dashButton = Instance.new("ImageButton")
     dashButton.Size = UDim2.new(0, 60, 0, 60)
     dashButton.Position = UDim2.new(1, -80, 0.6, -30)
-    dashButton.Image = "rbxassetid://93891156254229"
+    dashButton.Image = "rbxassetid://83702098460858"
     dashButton.BackgroundTransparency = 1
     dashButton.Parent = gui
     dashButton.Active = true
@@ -37,32 +37,46 @@ if game.PlaceId == 14722542056 then
         local humanoid = character:WaitForChild("Humanoid")
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
+        -- **Animación**
         local dashAnim = Instance.new("Animation")
         dashAnim.AnimationId = "rbxassetid://14465982605"
         local animTrack = humanoid:LoadAnimation(dashAnim)
         animTrack:Play()
 
+        -- **Sonido de dash**
+        local dashSound = Instance.new("Sound", humanoidRootPart)
+        dashSound.SoundId = "rbxassetid://18400344659"
+        dashSound.Volume = 2
+        dashSound:Play()
+
+        -- **Impulso del dash**
         local bodyVelocity = Instance.new("BodyVelocity")
         bodyVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
-        bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * (52 * 4.5) -- Nerfeado
+        bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * (52 * 4) -- **Menos potencia**
         bodyVelocity.Parent = humanoidRootPart
 
+        -- **Mantenimiento en el aire**
         local isAirborne = humanoid:GetState() == Enum.HumanoidStateType.Freefall
+        local antiGravity
         if isAirborne then
-            local antiGravity = Instance.new("BodyForce")
-            antiGravity.Force = Vector3.new(0, workspace.Gravity * humanoidRootPart.AssemblyMass, 0)
+            antiGravity = Instance.new("BodyForce")
+            antiGravity.Force = Vector3.new(0, workspace.Gravity * humanoidRootPart.AssemblyMass * 0.9, 0) -- **Menos fuerza**
             antiGravity.Parent = humanoidRootPart
-            task.wait(0.4)
-            antiGravity:Destroy()
-        else
-            task.wait(0.4)
         end
 
+        task.wait(0.35) -- **Duración balanceada**
+
+        -- **Finalización del dash**
         bodyVelocity:Destroy()
+        if antiGravity then
+            antiGravity:Destroy()
+        end
+        dashSound:Destroy()
         animTrack:Stop()
         humanoid:Move(Vector3.new(0, 0, 0))
 
-        task.delay(30, function()
+        -- **Cooldown**
+        task.delay(35, function() -- **Aumento de cooldown**
             cooldown = false
             dashButton.BackgroundTransparency = 1
         end)
