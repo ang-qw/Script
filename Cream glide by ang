@@ -15,7 +15,7 @@ if game.PlaceId == 14722542056 then
     local glideButton = Instance.new("ImageButton")
     glideButton.Size = UDim2.new(0, 60, 0, 60)
     glideButton.Position = UDim2.new(1, -80, 0.4, -30)
-    glideButton.Image = "rbxassetid://98141417333475"
+    glideButton.Image = "rbxassetid://84336107121846" -- Nueva imagen del botón
     glideButton.BackgroundTransparency = 1
     glideButton.Parent = gui
     glideButton.Active = true
@@ -27,6 +27,7 @@ if game.PlaceId == 14722542056 then
 
     local FLOAT_FORCE = 90000
     local DESCEND_SPEED = -2
+    local FASTER_DESCEND_SPEED = -5 -- Velocidad de descenso más rápida después de 6s
     local cooldown = false
     local gliding = false
 
@@ -79,6 +80,12 @@ if game.PlaceId == 14722542056 then
                 stopGlide()
             end
         end)
+
+        -- Después de 6 segundos, hacer que descienda más rápido
+        task.wait(6)
+        if gliding then
+            glideForce.Velocity = Vector3.new(0, FASTER_DESCEND_SPEED, 0)
+        end
     end
 
     glideButton.MouseButton1Click:Connect(activateGlide)
