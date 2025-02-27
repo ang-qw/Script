@@ -43,18 +43,14 @@ if game.PlaceId == 14722542056 then
         gliding = true
         glideButton.BackgroundTransparency = 0.5
 
-        -- Animaciones
+        -- Only one animation is used for glide
         local glideAnim = Instance.new("Animation")
         glideAnim.AnimationId = "rbxassetid://104077515216832"
-        local descendAnim = Instance.new("Animation")
-        descendAnim.AnimationId = "rbxassetid://136705072136812"
 
         local animTrack = humanoid:LoadAnimation(glideAnim)
-        local descendTrack = humanoid:LoadAnimation(descendAnim)
-
         animTrack:Play()
 
-        -- Aplicar fuerza para planear
+        -- Apply force to glide
         local glideForce = Instance.new("BodyVelocity")
         glideForce.MaxForce = Vector3.new(0, FLOAT_FORCE, 0)
         glideForce.Velocity = Vector3.new(0, DESCEND_SPEED, 0)
@@ -65,33 +61,25 @@ if game.PlaceId == 14722542056 then
             gliding = false
             glideButton.BackgroundTransparency = 1
             animTrack:Stop()
-            descendTrack:Stop()
             glideForce:Destroy()
             task.delay(35, function()
                 cooldown = false
             end)
         end
 
-        -- Cancelar con el botón
+        -- Cancel glide by clicking the button
         glideButton.MouseButton1Click:Connect(function()
             if gliding then
                 stopGlide()
             end
         end)
 
-        -- Detectar cuando toca el suelo
+        -- Detect when the character touches the ground
         humanoid.StateChanged:Connect(function(_, newState)
             if newState == Enum.HumanoidStateType.Landed then
                 stopGlide()
             end
         end)
-
-        -- Cambiar animación al descender
-        task.wait(3) -- Simula duración antes de descender más rápido
-        if gliding then
-            descendTrack:Play()
-            glideForce.Velocity = Vector3.new(0, DESCEND_SPEED * 2, 0)
-        end
     end
 
     glideButton.MouseButton1Click:Connect(activateGlide)
