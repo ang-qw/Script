@@ -43,14 +43,13 @@ if game.PlaceId == 14722542056 then
         gliding = true
         glideButton.BackgroundTransparency = 0.5
 
-        -- Only one animation is used for glide
+        -- Cargar y reproducir la animación principal
         local glideAnim = Instance.new("Animation")
         glideAnim.AnimationId = "rbxassetid://104077515216832"
-
         local animTrack = humanoid:LoadAnimation(glideAnim)
         animTrack:Play()
 
-        -- Apply force to glide
+        -- Aplicar fuerza para planear
         local glideForce = Instance.new("BodyVelocity")
         glideForce.MaxForce = Vector3.new(0, FLOAT_FORCE, 0)
         glideForce.Velocity = Vector3.new(0, DESCEND_SPEED, 0)
@@ -67,14 +66,14 @@ if game.PlaceId == 14722542056 then
             end)
         end
 
-        -- Cancel glide by clicking the button
+        -- Permite cancelar el glide al hacer click en el botón
         glideButton.MouseButton1Click:Connect(function()
             if gliding then
                 stopGlide()
             end
         end)
 
-        -- Detect when the character touches the ground
+        -- Detener el glide al tocar el suelo
         humanoid.StateChanged:Connect(function(_, newState)
             if newState == Enum.HumanoidStateType.Landed then
                 stopGlide()
@@ -88,7 +87,6 @@ if game.PlaceId == 14722542056 then
         glideButton.Visible = canUseGlide()
     end)
 end
-
 
 local player = game.Players.LocalPlayer
 
