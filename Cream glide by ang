@@ -15,7 +15,7 @@ if game.PlaceId == 14722542056 then
     local glideButton = Instance.new("ImageButton")
     glideButton.Size = UDim2.new(0, 60, 0, 60)
     glideButton.Position = UDim2.new(1, -80, 0.4, -30)
-    glideButton.Image = "rbxassetid://11112592115"
+    glideButton.Image = "rbxassetid://98141417333475"
     glideButton.BackgroundTransparency = 1
     glideButton.Parent = gui
     glideButton.Active = true
