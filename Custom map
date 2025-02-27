@@ -1,0 +1,167 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local workspace = game.Workspace
+
+-- Ubicación específica al ejecutar el script
+local spawnPosition = Vector3.new(-15.52, 170.20, -149.10)
+
+-- Crear el suelo en la misma posición
+local floor = Instance.new("Part")
+floor.Size = Vector3.new(100, 1, 100) -- Tamaño del suelo
+floor.Position = spawnPosition - Vector3.new(0, 1, 0) -- Ajustar para que quede justo debajo
+floor.Anchored = true
+floor.BrickColor = BrickColor.new("Bright blue") -- Color del suelo
+floor.Parent = workspace
+
+player.CharacterAdded:Connect(function(character)
+    -- Mover al jugador a la ubicación deseada cuando aparezca
+    character:SetPrimaryPartCFrame(CFrame.new(spawnPosition))
+end)
+
+-- Crear GUI Rosada
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0, 20, 0, 100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 182, 193) -- Rosado
+mainFrame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "Creador de Mapas"
+title.BackgroundColor3 = Color3.fromRGB(255, 105, 180) -- Rosado más fuerte
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = mainFrame
+
+-- Botón para agregar cubos
+local addButton = Instance.new("TextButton")
+addButton.Size = UDim2.new(1, 0, 0, 40)
+addButton.Position = UDim2.new(0, 0, 0, 50)
+addButton.Text = "Agregar Cubo"
+addButton.BackgroundColor3 = Color3.fromRGB(255, 140, 160)
+addButton.TextColor3 = Color3.new(1, 1, 1)
+addButton.Parent = mainFrame
+
+-- Botón para eliminar cubos
+local removeButton = Instance.new("TextButton")
+removeButton.Size = UDim2.new(1, 0, 0, 40)
+removeButton.Position = UDim2.new(0, 0, 0, 100)
+removeButton.Text = "Eliminar Último Cubo"
+removeButton.BackgroundColor3 = Color3.fromRGB(255, 110, 150)
+removeButton.TextColor3 = Color3.new(1, 1, 1)
+removeButton.Parent = mainFrame
+
+-- Botón para cambiar color
+local colorButton = Instance.new("TextButton")
+colorButton.Size = UDim2.new(1, 0, 0, 40)
+colorButton.Position = UDim2.new(0, 0, 0, 150)
+colorButton.Text = "Cambiar Color"
+colorButton.BackgroundColor3 = Color3.fromRGB(255, 90, 140)
+colorButton.TextColor3 = Color3.new(1, 1, 1)
+colorButton.Parent = mainFrame
+
+-- Botón para cambiar textura
+local textureButton = Instance.new("TextButton")
+textureButton.Size = UDim2.new(1, 0, 0, 40)
+textureButton.Position = UDim2.new(0, 0, 0, 200)
+textureButton.Text = "Aplicar Textura"
+textureButton.BackgroundColor3 = Color3.fromRGB(255, 70, 130)
+textureButton.TextColor3 = Color3.new(1, 1, 1)
+textureButton.Parent = mainFrame
+
+-- Botón para exportar código
+local exportButton = Instance.new("TextButton")
+exportButton.Size = UDim2.new(1, 0, 0, 40)
+exportButton.Position = UDim2.new(0, 0, 0, 250)
+exportButton.Text = "Exportar Mapa"
+exportButton.BackgroundColor3 = Color3.fromRGB(255, 50, 120)
+exportButton.TextColor3 = Color3.new(1, 1, 1)
+exportButton.Parent = mainFrame
+
+-- Botón para importar código
+local importButton = Instance.new("TextButton")
+importButton.Size = UDim2.new(1, 0, 0, 40)
+importButton.Position = UDim2.new(0, 0, 0, 300)
+importButton.Text = "Importar Mapa"
+importButton.BackgroundColor3 = Color3.fromRGB(255, 30, 110)
+importButton.TextColor3 = Color3.new(1, 1, 1)
+importButton.Parent = mainFrame
+
+local cubes = {}
+
+local function addCube()
+    local cube = Instance.new("Part")
+    cube.Size = Vector3.new(4, 4, 4)
+    cube.Position = Vector3.new(math.random(-10, 10), 5, math.random(-10, 10))
+    cube.Color = Color3.new(math.random(), math.random(), math.random())
+    cube.Anchored = true
+    cube.Parent = workspace
+    table.insert(cubes, cube)
+end
+
+local function removeCube()
+    if #cubes > 0 then
+        local cube = table.remove(cubes)
+        cube:Destroy()
+    end
+end
+
+local function changeCubeColor()
+    if #cubes > 0 then
+        local cube = cubes[#cubes]
+        cube.Color = Color3.new(math.random(), math.random(), math.random())
+    end
+end
+
+local function applyTexture()
+    if #cubes > 0 then
+        local cube = cubes[#cubes]
+        local texture = Instance.new("Texture")
+        texture.Texture = "rbxassetid://6860611322" -- ID de textura de prueba
+        texture.Face = Enum.NormalId.Top
+        texture.Parent = cube
+    end
+end
+
+local function exportMap()
+    local mapData = {}
+    for _, cube in pairs(cubes) do
+        table.insert(mapData, {
+            Position = {cube.Position.X, cube.Position.Y, cube.Position.Z},
+            Color = {cube.Color.R, cube.Color.G, cube.Color.B},
+        })
+    end
+    local mapString = game:GetService("HttpService"):JSONEncode(mapData)
+    setclipboard(mapString)
+end
+
+local function importMap()
+    local mapString = game:GetService("UserInputService"):GetString("Introduce el código del mapa:")
+    local mapData = game:GetService("HttpService"):JSONDecode(mapString)
+    
+    for _, cube in pairs(cubes) do
+        cube:Destroy()
+    end
+    cubes = {}
+
+    for _, data in pairs(mapData) do
+        local cube = Instance.new("Part")
+        cube.Size = Vector3.new(4, 4, 4)
+        cube.Position = Vector3.new(unpack(data.Position))
+        cube.Color = Color3.new(unpack(data.Color))
+        cube.Anchored = true
+        cube.Parent = workspace
+        table.insert(cubes, cube)
+    end
+end
+
+addButton.MouseButton1Click:Connect(addCube)
+removeButton.MouseButton1Click:Connect(removeCube)
+colorButton.MouseButton1Click:Connect(changeCubeColor)
+textureButton.MouseButton1Click:Connect(applyTexture)
+exportButton.MouseButton1Click:Connect(exportMap)
+importButton.MouseButton1Click:Connect(importMap)
