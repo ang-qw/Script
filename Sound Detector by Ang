@@ -1,0 +1,114 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local SoundHistory = {}  -- Almacena los ID de los sonidos sin repetir
+
+-- Crear GUI
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 350, 0, 300)
+Frame.Position = UDim2.new(0.5, -175, 0.5, -150)
+Frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Frame.Active = true
+Frame.Draggable = true
+
+local TopBar = Instance.new("Frame", Frame)
+TopBar.Size = UDim2.new(1, 0, 0, 30)
+TopBar.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+
+local CloseButton = Instance.new("TextButton", TopBar)
+CloseButton.Size = UDim2.new(0, 30, 1, 0)
+CloseButton.Position = UDim2.new(1, -30, 0, 0)
+CloseButton.Text = "X"
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+local LogFrame = Instance.new("ScrollingFrame", Frame)
+LogFrame.Size = UDim2.new(1, 0, 1, -30)
+LogFrame.Position = UDim2.new(0, 0, 0, 30)
+LogFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+LogFrame.ScrollBarThickness = 5
+
+local UIList = Instance.new("UIListLayout", LogFrame)
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Padding = UDim.new(0, 5)
+
+-- Función para agregar sonidos al historial
+local function logSound(sound)
+    if not sound.SoundId or sound.SoundId == "" then return end
+    local soundId = sound.SoundId:match("%d+")
+    if not soundId or SoundHistory[soundId] then return end  -- Evita duplicados
+
+    SoundHistory[soundId] = true  -- Almacena el ID en la tabla
+
+    local SoundRow = Instance.new("Frame", LogFrame)
+    SoundRow.Size = UDim2.new(1, 0, 0, 30)
+    SoundRow.BackgroundTransparency = 1
+
+    local Label = Instance.new("TextLabel", SoundRow)
+    Label.Size = UDim2.new(0.5, 0, 1, 0)
+    Label.Text = soundId
+    Label.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    Label.TextColor3 = Color3.new(1, 1, 1)
+
+    local CopyButton = Instance.new("TextButton", SoundRow)
+    CopyButton.Size = UDim2.new(0.25, 0, 1, 0)
+    CopyButton.Position = UDim2.new(0.5, 0, 0, 0)
+    CopyButton.Text = "Copy"
+    CopyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+
+    local PlayButton = Instance.new("TextButton", SoundRow)
+    PlayButton.Size = UDim2.new(0.25, 0, 1, 0)
+    PlayButton.Position = UDim2.new(0.75, 0, 0, 0)
+    PlayButton.Text = "Play"
+    PlayButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+    CopyButton.MouseButton1Click:Connect(function()
+        setclipboard("rbxassetid://" .. soundId)
+    end)
+
+    PlayButton.MouseButton1Click:Connect(function()
+        local tempSound = Instance.new("Sound", LocalPlayer:FindFirstChild("PlayerGui") or workspace)
+        tempSound.SoundId = "rbxassetid://" .. soundId
+        tempSound.Volume = 2
+        tempSound:Play()
+        tempSound.Ended:Connect(function()
+            tempSound:Destroy()
+        end)
+    end)
+
+    LogFrame.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+end
+
+-- Función para detectar sonidos
+local function detectSounds(parent)
+    for _, obj in ipairs(parent:GetDescendants()) do
+        if obj:IsA("Sound") and obj.Playing then
+            logSound(obj)
+        end
+    end
+end
+
+-- Función para monitorear sonidos nuevos
+local function onDescendantAdded(descendant)
+    if descendant:IsA("Sound") then
+        descendant:GetPropertyChangedSignal("Playing"):Connect(function()
+            if descendant.Playing then
+                logSound(descendant)
+            end
+        end)
+    end
+end
+
+-- Aplicar detección en Workspace y PlayerGui
+detectSounds(workspace)
+detectSounds(PlayerGui)
+detectSounds(LocalPlayer)
+
+workspace.DescendantAdded:Connect(onDescendantAdded)
+PlayerGui.DescendantAdded:Connect(onDescendantAdded)
+LocalPlayer.DescendantAdded:Connect(onDescendantAdded)
