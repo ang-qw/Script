@@ -1,0 +1,488 @@
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local function canUseGlide()
+        return characterValue.Value:lower() == "cream"
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "GlideGUI"
+
+    local glideButton = Instance.new("ImageButton")
+    glideButton.Size = UDim2.new(0, 60, 0, 60)
+    glideButton.Position = UDim2.new(1, -80, 0.4, -30)
+    glideButton.Image = "rbxassetid://84336107121846" -- Nueva imagen del botón
+    glideButton.BackgroundTransparency = 1
+    glideButton.Parent = gui
+    glideButton.Active = true
+    glideButton.Draggable = true
+    glideButton.Visible = canUseGlide()
+
+    local uicorner = Instance.new("UICorner", glideButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local FLOAT_FORCE = 90000
+    local DESCEND_SPEED = -2
+    local FASTER_DESCEND_SPEED = -5 -- Velocidad de descenso más rápida después de 6s
+    local cooldown = false
+    local gliding = false
+
+    local function activateGlide()
+        if cooldown or not canUseGlide() then return end
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then return end
+
+        cooldown = true
+        gliding = true
+        glideButton.BackgroundTransparency = 0.5
+
+        -- Animación principal de glide
+        local glideAnim = Instance.new("Animation")
+        glideAnim.AnimationId = "rbxassetid://104077515216832"
+        local animTrack = humanoid:LoadAnimation(glideAnim)
+        animTrack:Play()
+
+        -- Aplicar fuerza para planear
+        local glideForce = Instance.new("BodyVelocity")
+        glideForce.MaxForce = Vector3.new(0, FLOAT_FORCE, 0)
+        glideForce.Velocity = Vector3.new(0, DESCEND_SPEED, 0)
+        glideForce.Parent = humanoidRootPart
+
+        local function stopGlide()
+            if not gliding then return end
+            gliding = false
+            glideButton.BackgroundTransparency = 1
+            animTrack:Stop()
+            glideForce:Destroy()
+            task.delay(35, function()
+                cooldown = false
+            end)
+        end
+
+        -- Cancelar con el botón
+        glideButton.MouseButton1Click:Connect(function()
+            if gliding then
+                stopGlide()
+            end
+        end)
+
+        -- Detectar cuando toca el suelo
+        humanoid.StateChanged:Connect(function(_, newState)
+            if newState == Enum.HumanoidStateType.Landed then
+                stopGlide()
+            end
+        end)
+
+        -- Después de 6 segundos, hacer que descienda más rápido
+        task.wait(6)
+        if gliding then
+            glideForce.Velocity = Vector3.new(0, FASTER_DESCEND_SPEED, 0)
+        end
+    end
+
+    glideButton.MouseButton1Click:Connect(activateGlide)
+
+    characterValue.Changed:Connect(function()
+        glideButton.Visible = canUseGlide()
+    end)
+end
+
+
+
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local function canUseGlide()
+        return characterValue.Value:lower() == "knuckles"
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "KnucklesGlideGUI"
+
+    local glideButton = Instance.new("ImageButton")
+    glideButton.Size = UDim2.new(0, 60, 0, 60)
+    glideButton.Position = UDim2.new(1, -80, 0.4, -30)
+    glideButton.Image = "rbxassetid://11112592115"
+    glideButton.BackgroundTransparency = 1
+    glideButton.Parent = gui
+    glideButton.Active = true
+    glideButton.Draggable = true
+    glideButton.Visible = canUseGlide()
+
+    local uicorner = Instance.new("UICorner", glideButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local FLOAT_FORCE = 50000   -- Menor fuerza de flotación (más pesado)
+    local DESCEND_SPEED = -5    -- Caída más rápida
+    local cooldown = false
+    local gliding = false
+
+    local function activateGlide()
+        if cooldown or not canUseGlide() then return end
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then return end
+
+        cooldown = true
+        gliding = true
+        glideButton.BackgroundTransparency = 0.5
+
+        -- Animaciones para el glide (se reproducen a la vez)
+        local glideAnim1 = Instance.new("Animation")
+        glideAnim1.AnimationId = "rbxassetid://17169782184"
+        local glideAnim2 = Instance.new("Animation")
+        glideAnim2.AnimationId = "rbxassetid://15198329335"
+
+        local animTrack1 = humanoid:LoadAnimation(glideAnim1)
+        local animTrack2 = humanoid:LoadAnimation(glideAnim2)
+
+        animTrack1:Play()
+        animTrack2:Play()
+
+        -- Aplicar fuerza para el planeo (más pesado, caída rápida)
+        local glideForce = Instance.new("BodyVelocity")
+        glideForce.MaxForce = Vector3.new(0, FLOAT_FORCE, 0)
+        glideForce.Velocity = Vector3.new(0, DESCEND_SPEED, 0)
+        glideForce.Parent = humanoidRootPart
+
+        local function stopGlide()
+            if not gliding then return end
+            gliding = false
+            glideButton.BackgroundTransparency = 1
+            animTrack1:Stop()
+            animTrack2:Stop()
+            glideForce:Destroy()
+            task.delay(25, function()
+                cooldown = false
+            end)
+        end
+
+        -- Cancelar el glide si se vuelve a presionar el botón
+        glideButton.MouseButton1Click:Connect(function()
+            if gliding then
+                stopGlide()
+            end
+        end)
+
+        -- Detener el glide al tocar el suelo
+        humanoid.StateChanged:Connect(function(_, newState)
+            if newState == Enum.HumanoidStateType.Landed then
+                stopGlide()
+            end
+        end)
+    end
+
+    glideButton.MouseButton1Click:Connect(activateGlide)
+
+    characterValue.Changed:Connect(function()
+        glideButton.Visible = canUseGlide()
+    end)
+end
+
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then -- Aseguramos que solo funcione en este juego
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    -- Solo activar la habilidad si el personaje es "amy"
+    if characterValue.Value:lower() == "amy" then
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "AmyHammerBounceGUI"
+
+        local bounceButton = Instance.new("ImageButton")
+        bounceButton.Size = UDim2.new(0, 60, 0, 60)
+        bounceButton.Position = UDim2.new(1, -80, 0.4, -30)
+        bounceButton.Image = "rbxassetid://95495043584579" -- Nuevo icono
+        bounceButton.BackgroundTransparency = 1
+        bounceButton.Parent = gui
+        bounceButton.Active = true
+        bounceButton.Draggable = true
+        bounceButton.Visible = true
+
+        local uicorner = Instance.new("UICorner", bounceButton)
+        uicorner.CornerRadius = UDim.new(1, 0)
+
+        local cooldown = false
+        local isBouncing = false
+        local startFallTime = 0
+        local maxBounceHeight = 0 -- Guardar la altura mÃ¡xima de rebote alcanzada
+
+        local function playBounceSound()
+            local sound = Instance.new("Sound", player.Character)
+            sound.SoundId = "rbxassetid://1885641628" -- Nuevo sonido de rebote
+            sound.Volume = 1
+            sound:Play()
+        end
+
+        local function startBounce()
+            if cooldown then return end
+
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+            if humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then return end
+
+            cooldown = true
+            isBouncing = true
+            bounceButton.BackgroundTransparency = 0.5
+
+            -- AnimaciÃ³n antes del impacto
+            local bounceAnim1 = Instance.new("Animation")
+            bounceAnim1.AnimationId = "rbxassetid://14693821579"
+            local bounceAnim2 = Instance.new("Animation")
+            bounceAnim2.AnimationId = "rbxassetid://14694012690"
+
+            local animTrack1 = humanoid:LoadAnimation(bounceAnim1)
+            local animTrack2 = humanoid:LoadAnimation(bounceAnim2)
+
+            animTrack1:Play()
+
+            -- Tiempo de caÃ­da
+            startFallTime = tick()
+
+            -- Esperar hasta que toque el suelo
+            humanoid.StateChanged:Connect(function(_, newState)
+                if newState == Enum.HumanoidStateType.Landed and isBouncing then
+                    -- Calcular el tiempo de caÃ­da
+                    local fallTime = tick() - startFallTime
+                    -- Ajustar la altura del rebote dependiendo del tiempo de caÃ­da
+                    local bounceHeight = math.min(fallTime * 120, 300) -- Altura ajustada
+                    maxBounceHeight = bounceHeight -- Guardar el rebote mÃ¡ximo alcanzado
+
+                    -- Aplicar impulso con BodyVelocity
+                    local bodyVelocity = Instance.new("BodyVelocity")
+                    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+                    bodyVelocity.Velocity = Vector3.new(0, bounceHeight, 0)
+                    bodyVelocity.Parent = humanoidRootPart
+
+                    -- Reproducir sonido de rebote
+                    playBounceSound()
+
+                    -- AnimaciÃ³n del impacto
+                    animTrack1:Stop()
+                    animTrack2:Play()
+
+                    -- Detener el rebote y cooldown
+                    task.delay(0.5, function()
+                        bodyVelocity:Destroy()
+                        isBouncing = false
+                    end)
+
+                    -- Cooldown de 30 segundos
+                    task.delay(30, function()
+                        cooldown = false
+                        bounceButton.BackgroundTransparency = 1
+                    end)
+                end
+            end)
+        end
+
+        -- Si estamos en PC, el jugador debe presionar la tecla "P"
+        local UserInputService = game:GetService("UserInputService")
+        UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.P then
+                startBounce() -- Activar el rebote con la tecla "P"
+            end
+        end)
+
+        -- En dispositivos mÃ³viles, se sigue utilizando el botÃ³n
+        bounceButton.MouseButton1Click:Connect(startBounce)
+    end
+end
+
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local allowedCharacters = {
+        ["shadow"] = true,
+        ["sally"] = true
+    }
+
+    local function canUseRoll()
+        return allowedCharacters[characterValue.Value:lower()] or false
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "RollGUI"
+
+    local rollButton = Instance.new("ImageButton")
+    rollButton.Size = UDim2.new(0, 60, 0, 60)
+    rollButton.Position = UDim2.new(1, -80, 0.5, -30)
+    rollButton.Image = "rbxassetid://93891156254229"
+    rollButton.BackgroundTransparency = 1
+    rollButton.Parent = gui
+    rollButton.Active = true
+    rollButton.Draggable = true
+    rollButton.Visible = canUseRoll()
+
+    local uicorner = Instance.new("UICorner", rollButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local cooldown = false
+
+    local function isOnGround()
+        local character = player.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return false end
+
+        local ray = Ray.new(character.HumanoidRootPart.Position, Vector3.new(0, -4, 0))
+        local hit = workspace:FindPartOnRay(ray, character)
+        return hit and hit:IsDescendantOf(workspace)
+    end
+
+    local function activateRoll()
+        if cooldown or not isOnGround() or not canUseRoll() then return end
+
+        cooldown = true
+        rollButton.BackgroundTransparency = 0.7
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local animation = Instance.new("Animation")
+        animation.AnimationId = "rbxassetid://16264988703"
+        local animTrack = humanoid:LoadAnimation(animation)
+        animTrack:Play()
+
+        task.delay(0.32, function()
+            local boostForce = 52
+            local boostDuration = 0.62
+
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.MaxForce = Vector3.new(1000000, 0, 1000000)
+            bodyVelocity.Parent = humanoidRootPart
+
+            local startTime = tick()
+            while tick() - startTime < boostDuration do
+                if not isOnGround() then break end
+                bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * boostForce
+                wait(0)
+            end
+            bodyVelocity:Destroy()
+        end)
+
+        task.delay(24, function()
+            cooldown = false
+            rollButton.BackgroundTransparency = 1
+        end)
+    end
+
+    rollButton.MouseButton1Click:Connect(activateRoll)
+
+    characterValue.Changed:Connect(function()
+        rollButton.Visible = canUseRoll()
+    end)
+end
+
+local player = game.Players.LocalPlayer
+
+if game.PlaceId == 14722542056 then
+    local displayPlayers = game:GetService("ReplicatedStorage"):WaitForChild("displayPlayers")
+    local playerStats = displayPlayers:FindFirstChild(player.Name):WaitForChild("stats")
+    local characterValue = playerStats:WaitForChild("character")
+
+    local function canUseDash()
+        return characterValue.Value:lower() == "shadow"
+    end
+
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "DashGUI"
+
+    local dashButton = Instance.new("ImageButton")
+    dashButton.Size = UDim2.new(0, 60, 0, 60)
+    dashButton.Position = UDim2.new(1, -80, 0.6, -30)
+    dashButton.Image = "rbxassetid://138028806969115"
+    dashButton.BackgroundTransparency = 1
+    dashButton.Parent = gui
+    dashButton.Active = true
+    dashButton.Draggable = true
+    dashButton.Visible = canUseDash()
+
+    local uicorner = Instance.new("UICorner", dashButton)
+    uicorner.CornerRadius = UDim.new(1, 0)
+
+    local cooldown = false
+
+    local function activateDash()
+        if cooldown or not canUseDash() then return end
+
+        cooldown = true
+        dashButton.BackgroundTransparency = 0.7
+
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        -- **AnimaciÃ³n**
+        local dashAnim = Instance.new("Animation")
+        dashAnim.AnimationId = "rbxassetid://14465982605"
+        local animTrack = humanoid:LoadAnimation(dashAnim)
+        animTrack:Play()
+
+        -- **Sonido de dash**
+        local dashSound = Instance.new("Sound", humanoidRootPart)
+        dashSound.SoundId = "rbxassetid://18400344659"
+        dashSound.Volume = 2
+        dashSound:Play()
+
+        -- **Impulso del dash**
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+        bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * (52 * 4) -- **Menos potencia**
+        bodyVelocity.Parent = humanoidRootPart
+
+        -- **Mantenimiento en el aire**
+        local isAirborne = humanoid:GetState() == Enum.HumanoidStateType.Freefall
+        local antiGravity
+        if isAirborne then
+            antiGravity = Instance.new("BodyForce")
+            antiGravity.Force = Vector3.new(0, workspace.Gravity * humanoidRootPart.AssemblyMass * 0.9, 0) -- **Menos fuerza**
+            antiGravity.Parent = humanoidRootPart
+        end
+
+        task.wait(0.35) -- **DuraciÃ³n balanceada**
+
+        -- **FinalizaciÃ³n del dash**
+        bodyVelocity:Destroy()
+        if antiGravity then
+            antiGravity:Destroy()
+        end
+        dashSound:Destroy()
+        animTrack:Stop()
+        humanoid:Move(Vector3.new(0, 0, 0))
+
+        -- **Cooldown**
+        task.delay(35, function() -- **Aumento de cooldown**
+            cooldown = false
+            dashButton.BackgroundTransparency = 1
+        end)
+    end
+
+    dashButton.MouseButton1Click:Connect(activateDash)
+
+    characterValue.Changed:Connect(function()
+        dashButton.Visible = canUseDash()
+    end)
+end
