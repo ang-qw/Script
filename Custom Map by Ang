@@ -1,0 +1,431 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
+local function runMain()
+	local spawnPosition = Vector3.new(-15,170.20,-149.10)
+	local floor = Instance.new("Part")
+	floor.Size = Vector3.new(100,1,100)
+	floor.Position = spawnPosition - Vector3.new(0,20,0)
+	floor.Anchored = true
+	floor.BrickColor = BrickColor.new("Bright blue")
+	floor.Parent = workspace
+	player.CharacterAdded:Connect(function(character)
+		character:WaitForChild("HumanoidRootPart")
+		character:SetPrimaryPartCFrame(CFrame.new(spawnPosition))
+	end)
+	if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		player.Character:SetPrimaryPartCFrame(CFrame.new(spawnPosition))
+	end
+	local customSound = Instance.new("Sound")
+	customSound.SoundId = "rbxassetid://1234567890"
+	customSound.Volume = 1
+	customSound.Parent = floor
+	customSound:Play()
+	local shapesFolder = Instance.new("Folder")
+	shapesFolder.Name = "MapShapes"
+	shapesFolder.Parent = workspace
+	local shapes = {}
+	local selectedShape = nil
+	local gameFolder = workspace:WaitForChild("game")
+	local currentMapFolder = gameFolder:WaitForChild("currentMap")
+	local function deleteMapFolder()
+		for _,child in ipairs(currentMapFolder:GetChildren()) do
+			if child:FindFirstChild("default") then
+				child:Destroy()
+			end
+		end
+	end
+	deleteMapFolder()
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Parent = playerGui
+	local mainFrame = Instance.new("Frame")
+	mainFrame.Size = UDim2.new(0,150,0,300)
+	mainFrame.Position = UDim2.new(0,10,0,80)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(255,182,193)
+	mainFrame.Draggable = true
+	mainFrame.Active = true
+	mainFrame.Parent = screenGui
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1,0,0,30)
+	title.Position = UDim2.new(0,0,0,0)
+	title.Text = "Map Creator"
+	title.BackgroundColor3 = Color3.fromRGB(255,105,180)
+	title.TextColor3 = Color3.new(1,1,1)
+	title.Font = Enum.Font.SourceSansBold
+	title.TextScaled = true
+	title.Parent = mainFrame
+	local buttonFrame = Instance.new("Frame")
+	buttonFrame.Size = UDim2.new(1,0,0,210)
+	buttonFrame.Position = UDim2.new(0,0,0,30)
+	buttonFrame.BackgroundTransparency = 1
+	buttonFrame.Parent = mainFrame
+	local grid = Instance.new("UIGridLayout")
+	grid.CellSize = UDim2.new(0.5, -5, 0, 30)
+	grid.CellPadding = UDim2.new(0,5,0,5)
+	grid.FillDirectionMaxCells = 2
+	grid.Parent = buttonFrame
+	local function createButton(text, bgColor, callback)
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(1,0,0,30)
+		btn.Text = text
+		btn.BackgroundColor3 = bgColor
+		btn.TextColor3 = Color3.new(1,1,1)
+		btn.Parent = buttonFrame
+		btn.MouseButton1Click:Connect(callback)
+	end
+	createButton("Create Cube", Color3.fromRGB(255,140,160), function()
+		local part = Instance.new("Part")
+		part.Size = Vector3.new(4,4,4)
+		part.Position = floor.Position + Vector3.new(0,(floor.Size.Y + 4/2),0)
+		part.Anchored = false
+		part.Name = "Cube_"..tostring(#shapes+1)
+		part.Parent = shapesFolder
+		table.insert(shapes,{object=part,type="Cube"})
+	end)
+	createButton("Create Triangle", Color3.fromRGB(255,120,170), function()
+		local wedge = Instance.new("WedgePart")
+		wedge.Size = Vector3.new(4,4,4)
+		wedge.Position = floor.Position + Vector3.new(0,(floor.Size.Y + 4/2),0)
+		wedge.Anchored = false
+		wedge.Name = "Triangle_"..tostring(#shapes+1)
+		wedge.Parent = shapesFolder
+		table.insert(shapes,{object=wedge,type="Triangle"})
+	end)
+	createButton("Create Sphere", Color3.fromRGB(255,100,180), function()
+		local ball = Instance.new("Part")
+		ball.Shape = Enum.PartType.Ball
+		ball.Size = Vector3.new(4,4,4)
+		ball.Position = floor.Position + Vector3.new(0,(floor.Size.Y + 4/2),0)
+		ball.Anchored = false
+		ball.Name = "Sphere_"..tostring(#shapes+1)
+		ball.Parent = shapesFolder
+		table.insert(shapes,{object=ball,type="Sphere"})
+	end)
+	createButton("Select Shape", Color3.fromRGB(200,200,255), function()
+		local existing = playerGui:FindFirstChild("SelectShapeGui")
+		if existing then existing:Destroy() else
+		local selGui = Instance.new("ScreenGui")
+		selGui.Name = "SelectShapeGui"
+		selGui.Parent = playerGui
+		local selFrame = Instance.new("Frame")
+		selFrame.Size = UDim2.new(0,120,0,150)
+		selFrame.Position = UDim2.new(0,20,0,100)
+		selFrame.BackgroundColor3 = Color3.fromRGB(255,182,193)
+		selFrame.Draggable = true
+		selFrame.Active = true
+		selFrame.Parent = selGui
+		local layout = Instance.new("UIListLayout")
+		layout.Parent = selFrame
+		for _,entry in ipairs(shapes) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,25)
+			btn.Text = entry.object.Name
+			btn.BackgroundColor3 = Color3.fromRGB(173,216,230)
+			btn.Parent = selFrame
+			btn.MouseButton1Click:Connect(function()
+				selectedShape = entry.object
+				selGui:Destroy()
+			end)
+		end
+		local closeBtn = Instance.new("TextButton")
+		closeBtn.Size = UDim2.new(1,0,0,25)
+		closeBtn.Text = "Close"
+		closeBtn.BackgroundColor3 = Color3.fromRGB(255,99,71)
+		closeBtn.Parent = selFrame
+		closeBtn.MouseButton1Click:Connect(function()
+			selGui:Destroy()
+		end)
+		end
+	end)
+	createButton("Change Cube Color", Color3.fromRGB(255,90,140), function()
+		if not selectedShape then return end
+		local existing = playerGui:FindFirstChild("ChangeColorGui")
+		if existing then existing:Destroy() else
+		local colorGui = Instance.new("ScreenGui")
+		colorGui.Name = "ChangeColorGui"
+		colorGui.Parent = playerGui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0,120,0,150)
+		frame.Position = UDim2.new(0,20,0,100)
+		frame.BackgroundColor3 = Color3.fromRGB(255,105,180)
+		frame.Draggable = true
+		frame.Active = true
+		frame.Parent = colorGui
+		local colorPicker = Instance.new("Frame")
+		colorPicker.Size = UDim2.new(1,0,0,50)
+		colorPicker.Position = UDim2.new(0,0,0,0)
+		colorPicker.BackgroundColor3 = Color3.new(1,1,1)
+		colorPicker.Parent = frame
+		local rBox = Instance.new("TextBox")
+		rBox.Size = UDim2.new(1,0,0,25)
+		rBox.Position = UDim2.new(0,0,0,55)
+		rBox.PlaceholderText = "R (0-255)"
+		rBox.Parent = frame
+		local gBox = Instance.new("TextBox")
+		gBox.Size = UDim2.new(1,0,0,25)
+		gBox.Position = UDim2.new(0,0,0,80)
+		gBox.PlaceholderText = "G (0-255)"
+		gBox.Parent = frame
+		local bBox = Instance.new("TextBox")
+		bBox.Size = UDim2.new(1,0,0,25)
+		bBox.Position = UDim2.new(0,0,0,105)
+		bBox.PlaceholderText = "B (0-255)"
+		bBox.Parent = frame
+		local apply = Instance.new("TextButton")
+		apply.Size = UDim2.new(1,0,0,25)
+		apply.Position = UDim2.new(0,0,0,130)
+		apply.Text = "Apply"
+		apply.Parent = frame
+		apply.MouseButton1Click:Connect(function()
+			local r = tonumber(rBox.Text) or 255
+			local g = tonumber(gBox.Text) or 255
+			local b = tonumber(bBox.Text) or 255
+			selectedShape.Color = Color3.fromRGB(r,g,b)
+			colorGui:Destroy()
+		end)
+		end
+	end)
+	createButton("Change Cube Texture", Color3.fromRGB(255,70,130), function()
+		if not selectedShape then return end
+		local existing = playerGui:FindFirstChild("ChangeTextureGui")
+		if existing then existing:Destroy() else
+		local texGui = Instance.new("ScreenGui")
+		texGui.Name = "ChangeTextureGui"
+		texGui.Parent = playerGui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0,120,0,100)
+		frame.Position = UDim2.new(0,20,0,100)
+		frame.BackgroundColor3 = Color3.fromRGB(255,105,180)
+		frame.Draggable = true
+		frame.Active = true
+		frame.Parent = texGui
+		local texBox = Instance.new("TextBox")
+		texBox.Size = UDim2.new(1,0,0,50)
+		texBox.Position = UDim2.new(0,0,0,0)
+		texBox.PlaceholderText = "Texture AssetId"
+		texBox.Parent = frame
+		local apply = Instance.new("TextButton")
+		apply.Size = UDim2.new(1,0,0,50)
+		apply.Position = UDim2.new(0,0,0,50)
+		apply.Text = "Apply"
+		apply.Parent = frame
+		apply.MouseButton1Click:Connect(function()
+			local assetId = texBox.Text
+			local existingTex = selectedShape:FindFirstChildOfClass("Texture")
+			if existingTex then
+				existingTex.Texture = "rbxassetid://"..assetId
+			else
+				local tex = Instance.new("Texture")
+				tex.Texture = "rbxassetid://"..assetId
+				tex.Parent = selectedShape
+			end
+			texGui:Destroy()
+		end)
+		end
+	end)
+	createButton("Change Cube Size", Color3.fromRGB(0,191,255), function()
+		if not selectedShape then return end
+		local existing = playerGui:FindFirstChild("ChangeSizeGui")
+		if existing then existing:Destroy() else
+		local sizeGui = Instance.new("ScreenGui")
+		sizeGui.Name = "ChangeSizeGui"
+		sizeGui.Parent = playerGui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0,120,0,120)
+		frame.Position = UDim2.new(0,20,0,100)
+		frame.BackgroundColor3 = Color3.fromRGB(255,105,180)
+		frame.Draggable = true
+		frame.Active = true
+		frame.Parent = sizeGui
+		local wBox = Instance.new("TextBox")
+		wBox.Size = UDim2.new(1,0,0,30)
+		wBox.Position = UDim2.new(0,0,0,0)
+		wBox.PlaceholderText = "Width"
+		wBox.Parent = frame
+		local hBox = Instance.new("TextBox")
+		hBox.Size = UDim2.new(1,0,0,30)
+		hBox.Position = UDim2.new(0,0,0,30)
+		hBox.PlaceholderText = "Height"
+		hBox.Parent = frame
+		local dBox = Instance.new("TextBox")
+		dBox.Size = UDim2.new(1,0,0,30)
+		dBox.Position = UDim2.new(0,0,0,60)
+		dBox.PlaceholderText = "Depth"
+		dBox.Parent = frame
+		local apply = Instance.new("TextButton")
+		apply.Size = UDim2.new(1,0,0,30)
+		apply.Position = UDim2.new(0,0,0,90)
+		apply.Text = "Apply"
+		apply.Parent = frame
+		apply.MouseButton1Click:Connect(function()
+			local w = tonumber(wBox.Text) or 4
+			local h = tonumber(hBox.Text) or 4
+			local d = tonumber(dBox.Text) or 4
+			selectedShape.Size = Vector3.new(w,h,d)
+			sizeGui:Destroy()
+		end)
+		end
+	end)
+	createButton("Change Cube Position", Color3.fromRGB(255,50,120), function()
+		if not selectedShape then return end
+		local existing = playerGui:FindFirstChild("ChangePositionGui")
+		if existing then existing:Destroy() else
+		local posGui = Instance.new("ScreenGui")
+		posGui.Name = "ChangePositionGui"
+		posGui.Parent = playerGui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0,120,0,120)
+		frame.Position = UDim2.new(0,20,0,100)
+		frame.BackgroundColor3 = Color3.fromRGB(255,105,180)
+		frame.Draggable = true
+		frame.Active = true
+		frame.Parent = posGui
+		local xBox = Instance.new("TextBox")
+		xBox.Size = UDim2.new(1,0,0,30)
+		xBox.Position = UDim2.new(0,0,0,0)
+		xBox.PlaceholderText = "X"
+		xBox.Parent = frame
+		local yBox = Instance.new("TextBox")
+		yBox.Size = UDim2.new(1,0,0,30)
+		yBox.Position = UDim2.new(0,0,0,30)
+		yBox.PlaceholderText = "Y"
+		yBox.Parent = frame
+		local zBox = Instance.new("TextBox")
+		zBox.Size = UDim2.new(1,0,0,30)
+		zBox.Position = UDim2.new(0,0,0,60)
+		zBox.PlaceholderText = "Z"
+		zBox.Parent = frame
+		local apply = Instance.new("TextButton")
+		apply.Size = UDim2.new(1,0,0,30)
+		apply.Position = UDim2.new(0,0,0,90)
+		apply.Text = "Apply"
+		apply.Parent = frame
+		apply.MouseButton1Click:Connect(function()
+			local x = tonumber(xBox.Text) or selectedShape.Position.X
+			local y = tonumber(yBox.Text) or selectedShape.Position.Y
+			local z = tonumber(zBox.Text) or selectedShape.Position.Z
+			selectedShape.Position = Vector3.new(x,y,z)
+			posGui:Destroy()
+		end)
+		end
+	end)
+	createButton("Toggle Collision", Color3.fromRGB(138,43,226), function()
+		if not selectedShape then return end
+		selectedShape.Anchored = not selectedShape.Anchored
+	end)
+	createButton("Export Map", Color3.fromRGB(255,0,0), function()
+		local mapData = {}
+		for _,entry in ipairs(shapes) do
+			local obj = entry.object
+			local data = {}
+			data.Type = entry.type
+			data.Position = {obj.Position.X,obj.Position.Y,obj.Position.Z}
+			data.Size = {obj.Size.X,obj.Size.Y,obj.Size.Z}
+			data.Color = {obj.Color.R,obj.Color.G,obj.Color.B}
+			data.Anchored = obj.Anchored
+			local tex = obj:FindFirstChildOfClass("Texture")
+			if tex then data.Texture = tex.Texture end
+			table.insert(mapData,data)
+		end
+		local exportString = HttpService:JSONEncode(mapData)
+		setclipboard(exportString)
+	end)
+	createButton("Import Map", Color3.fromRGB(0,255,127), function()
+		local impGui = Instance.new("ScreenGui")
+		impGui.Name = "ImportMapGui"
+		impGui.Parent = playerGui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0,120,0,150)
+		frame.Position = UDim2.new(0,20,0,100)
+		frame.BackgroundColor3 = Color3.fromRGB(255,105,180)
+		frame.Draggable = true
+		frame.Active = true
+		frame.Parent = impGui
+		local impBox = Instance.new("TextBox")
+		impBox.Size = UDim2.new(1,0,0,100)
+		impBox.Position = UDim2.new(0,0,0,0)
+		impBox.PlaceholderText = "Paste map code"
+		impBox.ClearTextOnFocus = false
+		impBox.MultiLine = true
+		impBox.Parent = frame
+		local impBtn = Instance.new("TextButton")
+		impBtn.Size = UDim2.new(1,0,0,30)
+		impBtn.Position = UDim2.new(0,0,0,100)
+		impBtn.Text = "Import"
+		impBtn.Parent = frame
+		impBtn.MouseButton1Click:Connect(function()
+			local success, mapData = pcall(function() return HttpService:JSONDecode(impBox.Text) end)
+			if success and mapData then
+				for _,entry in ipairs(shapes) do
+					if entry.object then entry.object:Destroy() end
+				end
+				shapes = {}
+				for _,data in ipairs(mapData) do
+					local obj = nil
+					if data.Type == "Cube" then
+						obj = Instance.new("Part")
+						obj.Size = Vector3.new(data.Size[1],data.Size[2],data.Size[3])
+						obj.Position = Vector3.new(data.Position[1],data.Position[2],data.Position[3])
+						obj.Anchored = data.Anchored
+					elseif data.Type == "Triangle" then
+						obj = Instance.new("WedgePart")
+						obj.Size = Vector3.new(data.Size[1],data.Size[2],data.Size[3])
+						obj.Position = Vector3.new(data.Position[1],data.Position[2],data.Position[3])
+						obj.Anchored = data.Anchored
+					elseif data.Type == "Sphere" then
+						obj = Instance.new("Part")
+						obj.Shape = Enum.PartType.Ball
+						obj.Size = Vector3.new(data.Size[1],data.Size[2],data.Size[3])
+						obj.Position = Vector3.new(data.Position[1],data.Position[2],data.Position[3])
+						obj.Anchored = data.Anchored
+					end
+					if obj then
+						obj.Color = Color3.new(data.Color[1],data.Color[2],data.Color[3])
+						obj.Parent = shapesFolder
+						if data.Texture then
+							local tex = Instance.new("Texture")
+							tex.Texture = data.Texture
+							tex.Parent = obj
+						end
+						table.insert(shapes,{object=obj,type=data.Type})
+					end
+				end
+			end
+			impGui:Destroy()
+		end)
+	end)
+	createButton("Toggle Neon", Color3.fromRGB(0,255,255), function()
+		if not selectedShape then return end
+		if selectedShape.Material == Enum.Material.Neon then
+			selectedShape.Material = Enum.Material.Plastic
+		else
+			selectedShape.Material = Enum.Material.Neon
+		end
+	end)
+end
+local keyGui = Instance.new("ScreenGui")
+keyGui.Parent = playerGui
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0,200,0,100)
+keyFrame.Position = UDim2.new(0.5,-100,0.5,-50)
+keyFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+keyFrame.Parent = keyGui
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(1,-20,0,30)
+keyBox.Position = UDim2.new(0,10,0,10)
+keyBox.PlaceholderText = "Enter key..."
+keyBox.Parent = keyFrame
+local keyButton = Instance.new("TextButton")
+keyButton.Size = UDim2.new(1,-20,0,30)
+keyButton.Position = UDim2.new(0,10,0,50)
+keyButton.Text = "Submit"
+keyButton.Parent = keyFrame
+keyButton.MouseButton1Click:Connect(function()
+	if keyBox.Text == "VangelLovesFemboys" then
+		keyGui:Destroy()
+		runMain()
+	else
+		keyBox.Text = ""
+		keyBox.PlaceholderText = "Invalid key"
+	end
+end)
