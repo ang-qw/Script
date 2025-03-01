@@ -1,0 +1,171 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local workspace = game.Workspace
+
+local spawnPosition = Vector3.new(-15.52, 170.20, -149.10)
+local currentMapFolder = workspace:WaitForChild("game"):WaitForChild("currentMap")
+
+local floor = Instance.new("Part")
+floor.Size = Vector3.new(100, 1, 100)
+floor.Position = spawnPosition - Vector3.new(0, 3, 0) -- Ajustar para que quede justo debajo
+floor.Anchored = true
+floor.BrickColor = BrickColor.new("Bright blue")
+floor.Parent = workspace
+
+player.CharacterAdded:Connect(function(character)
+    character:SetPrimaryPartCFrame(CFrame.new(spawnPosition))
+end)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 250, 0, 350)
+mainFrame.Position = UDim2.new(0, 20, 0, 100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+mainFrame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "script por Ang.scripter"
+title.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextScaled = true
+title.Parent = mainFrame
+
+local addCubeButton = Instance.new("TextButton")
+addCubeButton.Size = UDim2.new(1, 0, 0, 30)
+addCubeButton.Position = UDim2.new(0, 0, 0, 40)
+addCubeButton.Text = "Agregar Cubo"
+addCubeButton.BackgroundColor3 = Color3.fromRGB(255, 140, 160)
+addCubeButton.TextColor3 = Color3.new(1, 1, 1)
+addCubeButton.Parent = mainFrame
+
+local addTriangleButton = Instance.new("TextButton")
+addTriangleButton.Size = UDim2.new(1, 0, 0, 30)
+addTriangleButton.Position = UDim2.new(0, 0, 0, 80)
+addTriangleButton.Text = "Agregar Triángulo"
+addTriangleButton.BackgroundColor3 = Color3.fromRGB(255, 140, 160)
+addTriangleButton.TextColor3 = Color3.new(1, 1, 1)
+addTriangleButton.Parent = mainFrame
+
+local addSphereButton = Instance.new("TextButton")
+addSphereButton.Size = UDim2.new(1, 0, 0, 30)
+addSphereButton.Position = UDim2.new(0, 0, 0, 120)
+addSphereButton.Text = "Agregar Esfera"
+addSphereButton.BackgroundColor3 = Color3.fromRGB(255, 140, 160)
+addSphereButton.TextColor3 = Color3.new(1, 1, 1)
+addSphereButton.Parent = mainFrame
+
+local cubes = {}
+local triangles = {}
+local spheres = {}
+local selectedObject = nil
+
+local function deleteMapFolder()
+    for _, child in ipairs(currentMapFolder:GetChildren()) do
+        if child:FindFirstChild("default") then
+            child:Destroy()
+        end
+    end
+end
+
+local function addCube()
+    local cube = Instance.new("Part")
+    cube.Size = Vector3.new(4, 4, 4)
+    cube.Position = spawnPosition
+    cube.Color = Color3.new(math.random(), math.random(), math.random())
+    cube.Anchored = true
+    cube.Parent = workspace
+    table.insert(cubes, cube)
+    selectedObject = cube
+end
+
+local function addTriangle()
+    local triangle = Instance.new("Wedge")
+    triangle.Size = Vector3.new(4, 4, 4)
+    triangle.Position = spawnPosition
+    triangle.Color = Color3.new(math.random(), math.random(), math.random())
+    triangle.Anchored = true
+    triangle.Parent = workspace
+    table.insert(triangles, triangle)
+    selectedObject = triangle
+end
+
+local function addSphere()
+    local sphere = Instance.new("Part")
+    sphere.Shape = Enum.PartType.Ball
+    sphere.Size = Vector3.new(4, 4, 4)
+    sphere.Position = spawnPosition
+    sphere.Color = Color3.new(math.random(), math.random(), math.random())
+    sphere.Anchored = true
+    sphere.Parent = workspace
+    table.insert(spheres, sphere)
+    selectedObject = sphere
+end
+
+local function exportMap()
+    local mapData = {}
+    for _, cube in pairs(cubes) do
+        table.insert(mapData, {
+            Type = "Cube",
+            Position = {cube.Position.X, cube.Position.Y, cube.Position.Z},
+            Color = {cube.Color.R, cube.Color.G, cube.Color.B},
+        })
+    end
+    for _, triangle in pairs(triangles) do
+        table.insert(mapData, {
+            Type = "Triangle",
+            Position = {triangle.Position.X, triangle.Position.Y, triangle.Position.Z},
+            Color = {triangle.Color.R, triangle.Color.G, triangle.Color.B},
+        })
+    end
+    for _, sphere in pairs(spheres) do
+        table.insert(mapData, {
+            Type = "Sphere",
+            Position = {sphere.Position.X, sphere.Position.Y, sphere.Position.Z},
+            Color = {sphere.Color.R, sphere.Color.G, sphere.Color.B},
+        })
+    end
+    local mapString = game:GetService("HttpService"):JSONEncode(mapData)
+    setclipboard(mapString)
+end
+
+local function importMap()
+    local mapString = game:GetService("UserInputService"):GetString("Introduce el código del mapa:")
+    local mapData = game:GetService("HttpService"):JSONDecode(mapString)
+    
+    deleteMapFolder()
+
+    for _, data in pairs(mapData) do
+        local part
+        if data.Type == "Cube" then
+            part = Instance.new("Part")
+            part.Size = Vector3.new(4, 4, 4)
+        elseif data.Type == "Triangle" then
+            part = Instance.new("Wedge")
+            part.Size = Vector3.new(4, 4, 4)
+        elseif data.Type == "Sphere" then
+            part = Instance.new("Part")
+            part.Shape = Enum.PartType.Ball
+            part.Size = Vector3.new(4, 4, 4)
+        end
+
+        part.Position = Vector3.new(unpack(data.Position))
+        part.Color = Color3.new(unpack(data.Color))
+        part.Anchored = true
+        part.Parent = workspace
+    end
+end
+
+local function teleportPlayer()
+    player.Character:SetPrimaryPartCFrame(CFrame.new(spawnPosition))
+end
+
+addCubeButton.MouseButton1Click:Connect(addCube)
+addTriangleButton.MouseButton1Click:Connect(addTriangle)
+addSphereButton.MouseButton1Click:Connect(addSphere)
+exportButton.MouseButton1Click:Connect(exportMap)
+importButton.MouseButton1Click:Connect(importMap)
+teleportButton.MouseButton1Click:Connect(teleportPlayer)
