@@ -1,0 +1,144 @@
+if game.PlaceId ~= 14722542056 then return end
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RossyScriptHub"
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = screenGui
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Size = UDim2.new(0.35, 0, 0.55, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+mainFrame.BorderSizePixel = 0
+
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0.1, 0)
+uicorner.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Parent = mainFrame
+titleLabel.Size = UDim2.new(1, 0, 0.12, 0)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "🌸 Rossy Hub 🌸"
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextColor3 = Color3.fromRGB(255, 105, 180)
+
+local keyBox = Instance.new("TextBox")
+keyBox.Parent = mainFrame
+keyBox.Size = UDim2.new(0.8, 0, 0.1, 0)
+keyBox.Position = UDim2.new(0.1, 0, 0.15, 0)
+keyBox.PlaceholderText = "Enter Key..."
+keyBox.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+keyBox.TextScaled = true
+keyBox.Font = Enum.Font.Gotham
+keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyBox.ClearTextOnFocus = false
+
+local keyCorner = Instance.new("UICorner")
+keyCorner.CornerRadius = UDim.new(0.2, 0)
+keyCorner.Parent = keyBox
+
+local verifyButton = Instance.new("TextButton")
+verifyButton.Parent = mainFrame
+verifyButton.Size = UDim2.new(0.6, 0, 0.1, 0)
+verifyButton.Position = UDim2.new(0.2, 0, 0.28, 0)
+verifyButton.Text = "Verify Key 🔑"
+verifyButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+verifyButton.TextScaled = true
+verifyButton.Font = Enum.Font.GothamBold
+verifyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local verifyCorner = Instance.new("UICorner")
+verifyCorner.CornerRadius = UDim.new(0.2, 0)
+verifyCorner.Parent = verifyButton
+
+local customMapButton = Instance.new("TextButton")
+customMapButton.Parent = mainFrame
+customMapButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+customMapButton.Position = UDim2.new(0.1, 0, 0.42, 0)
+customMapButton.Text = "Custom Map 🗺️"
+customMapButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+customMapButton.TextScaled = true
+customMapButton.Font = Enum.Font.GothamBold
+customMapButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+customMapButton.Visible = false
+
+local mapCorner = Instance.new("UICorner")
+mapCorner.CornerRadius = UDim.new(0.2, 0)
+mapCorner.Parent = customMapButton
+
+local customAbilitiesButton = Instance.new("TextButton")
+customAbilitiesButton.Parent = mainFrame
+customAbilitiesButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+customAbilitiesButton.Position = UDim2.new(0.1, 0, 0.54, 0)
+customAbilitiesButton.Text = "Custom Abilities ⚡"
+customAbilitiesButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+customAbilitiesButton.TextScaled = true
+customAbilitiesButton.Font = Enum.Font.GothamBold
+customAbilitiesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+customAbilitiesButton.Visible = false
+
+local abilitiesCorner = Instance.new("UICorner")
+abilitiesCorner.CornerRadius = UDim.new(0.2, 0)
+abilitiesCorner.Parent = customAbilitiesButton
+
+local discordButton = Instance.new("TextButton")
+discordButton.Parent = mainFrame
+discordButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+discordButton.Position = UDim2.new(0.1, 0, 0.66, 0)
+discordButton.Text = "Join Discord 🎮"
+discordButton.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+discordButton.TextScaled = true
+discordButton.Font = Enum.Font.GothamBold
+discordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local discordCorner = Instance.new("UICorner")
+discordCorner.CornerRadius = UDim.new(0.2, 0)
+discordCorner.Parent = discordButton
+
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Parent = mainFrame
+creditLabel.Size = UDim2.new(1, 0, 0.1, 0)
+creditLabel.Position = UDim2.new(0, 0, 0.78, 0)
+creditLabel.BackgroundTransparency = 1
+creditLabel.Text = "by Ang & Vangel 💖"
+creditLabel.TextScaled = true
+creditLabel.Font = Enum.Font.Gotham
+creditLabel.TextColor3 = Color3.fromRGB(255, 105, 180)
+
+local ringSound = Instance.new("Sound")
+ringSound.SoundId = "rbxassetid://301964312"
+ringSound.Volume = 1
+ringSound.Parent = mainFrame
+
+verifyButton.MouseButton1Click:Connect(function()
+	if keyBox.Text == "Rossy" then
+		ringSound:Play()
+		customMapButton.Visible = true
+		customAbilitiesButton.Visible = true
+	else
+		keyBox.Text = ""
+		keyBox.PlaceholderText = "❌ Incorrect Key"
+	end
+end)
+
+customMapButton.MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ang-qw/Script/refs/heads/main/Custom%20Map%20by%20Ang"))()
+	screenGui:Destroy()
+end)
+
+customAbilitiesButton.MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ang-qw/Script/refs/heads/main/Custom%20Abilities"))()
+	screenGui:Destroy()
+end)
+
+discordButton.MouseButton1Click:Connect(function()
+	setclipboard("https://discord.gg/YDtPX6JPYu")
+	discordButton.Text = "Copied ✅"
+	wait(1)
+	discordButton.Text = "Join Discord 🎮"
+end)
