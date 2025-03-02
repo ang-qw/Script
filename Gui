@@ -1,0 +1,123 @@
+if game.PlaceId ~= 14722542056 then return end
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RossyScriptHub"
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = screenGui
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Size = UDim2.new(0.3, 0, 0.6, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+
+local uicorner = Instance.new("UICorner")
+uicorner.Parent = mainFrame
+
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 182, 193)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 105, 180))
+})
+gradient.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Parent = mainFrame
+titleLabel.Size = UDim2.new(1, 0, 0.15, 0)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "💖 Rossy Script Hub 💖"
+titleLabel.TextScaled = true
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.Font = Enum.Font.GothamBold
+
+local keyBox = Instance.new("TextBox")
+keyBox.Name = "KeyBox"
+keyBox.Parent = mainFrame
+keyBox.Size = UDim2.new(0.8, 0, 0.1, 0)
+keyBox.Position = UDim2.new(0.1, 0, 0.17, 0)
+keyBox.PlaceholderText = "Enter Key..."
+keyBox.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+keyBox.TextScaled = true
+keyBox.ClearTextOnFocus = false
+
+local verifyButton = Instance.new("TextButton")
+verifyButton.Name = "VerifyButton"
+verifyButton.Parent = mainFrame
+verifyButton.Size = UDim2.new(0.5, 0, 0.1, 0)
+verifyButton.Position = UDim2.new(0.25, 0, 0.29, 0)
+verifyButton.Text = "Verify Key 🔑"
+verifyButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193)
+verifyButton.TextScaled = true
+
+local customMapButton = Instance.new("TextButton")
+customMapButton.Name = "CustomMapButton"
+customMapButton.Parent = mainFrame
+customMapButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+customMapButton.Position = UDim2.new(0.1, 0, 0.42, 0)
+customMapButton.Text = "Custom Map 🗺️"
+customMapButton.BackgroundColor3 = Color3.fromRGB(255, 192, 203)
+customMapButton.TextScaled = true
+customMapButton.Visible = false
+
+local customAbilitiesButton = Instance.new("TextButton")
+customAbilitiesButton.Name = "CustomAbilitiesButton"
+customAbilitiesButton.Parent = mainFrame
+customAbilitiesButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+customAbilitiesButton.Position = UDim2.new(0.1, 0, 0.54, 0)
+customAbilitiesButton.Text = "Custom Abilities ⚡"
+customAbilitiesButton.BackgroundColor3 = Color3.fromRGB(255, 192, 203)
+customAbilitiesButton.TextScaled = true
+customAbilitiesButton.Visible = false
+
+local decoLabel = Instance.new("TextLabel")
+decoLabel.Name = "DecoLabel"
+decoLabel.Parent = mainFrame
+decoLabel.Size = UDim2.new(1, 0, 0.1, 0)
+decoLabel.Position = UDim2.new(0, 0, 0.66, 0)
+decoLabel.BackgroundTransparency = 1
+decoLabel.Text = "✨ Enjoy your scripts! ✨"
+decoLabel.TextScaled = true
+decoLabel.TextColor3 = Color3.new(1, 1, 1)
+decoLabel.Font = Enum.Font.Gotham
+
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Name = "CreditLabel"
+creditLabel.Parent = mainFrame
+creditLabel.Size = UDim2.new(1, 0, 0.1, 0)
+creditLabel.Position = UDim2.new(0, 0, 0.76, 0)
+creditLabel.BackgroundTransparency = 1
+creditLabel.Text = "by Ang & Vangel (helper on Custom Map)"
+creditLabel.TextScaled = true
+creditLabel.TextColor3 = Color3.new(1, 1, 1)
+creditLabel.Font = Enum.Font.Gotham
+
+local ringSound = Instance.new("Sound")
+ringSound.Name = "RingSound"
+ringSound.SoundId = "rbxassetid://301964312"
+ringSound.Volume = 1
+ringSound.Parent = mainFrame
+
+verifyButton.MouseButton1Click:Connect(function()
+	if keyBox.Text == "Rossy" then
+		ringSound:Play()
+		customMapButton.Visible = true
+		customAbilitiesButton.Visible = true
+	else
+		keyBox.Text = ""
+		keyBox.PlaceholderText = "Incorrect Key ❌"
+	end
+end)
+
+customMapButton.MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/ang-qw/Script/refs/heads/main/Custom%20Map%20by%20Ang'))()
+	screenGui:Destroy()
+end)
+
+customAbilitiesButton.MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/ang-qw/Script/refs/heads/main/Custom%20Abilities'))()
+	screenGui:Destroy()
+end)
